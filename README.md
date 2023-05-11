@@ -1,6 +1,6 @@
 # any_handle
 
-License: MIT | [crates.io](https://crates.io/crates/any_handle) | [docs.rs](https://docs.rs/any_handle/latest/)
+![Crates.io](https://img.shields.io/crates/v/any_handle?style=for-the-badge) ![docs.rs](https://img.shields.io/docsrs/any_handle?style=for-the-badge) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/emctague/any_handle/rust.yml?style=for-the-badge) ![Crates.io](https://img.shields.io/crates/l/any_handle?style=for-the-badge) 
 
 `any_handle` provides a reference-counting smart pointer type, `AnyHandle<T>`,
 which can store a value of a type `T`. The special `AnyHandle<dyn Any>` allows for
