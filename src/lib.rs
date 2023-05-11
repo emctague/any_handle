@@ -103,28 +103,33 @@ impl<T: ?Sized> Clone for AnyHandle<T> {
     }
 }
 
-
+/// An immutable view into an AnyHandle. Multiple ReadGuards may exist for the same object at a given time,
+/// but ReadGuards and WriteGuards cannot exist for the same object at the same time.
 pub struct AnyHandleReadGuard<'a, T: ?Sized + 'a>(RwLockReadGuard<'a, Box<dyn Any>>, PhantomData<T>);
+
+/// A mutable view into an AnyHandle. Only one WriteGuard may exist for the same object at a given time,
+/// but ReadGuards and WriteGuards cannot exist for the same object at the same time.
 pub struct AnyHandleWriteGuard<'a, T: ?Sized + 'a>(RwLockWriteGuard<'a, Box<dyn Any>>, PhantomData<T>);
 
-impl<'a, T: 'a + 'static> Deref for AnyHandleReadGuard<'a, T> {
-    type Target = T;
+// Generate the Deref implementation for both guard types.
+macro_rules! impl_deref {
+    ($Type:ident) => {
+        #[doc = "Deref a handle, immutably."]
+        impl<'a, T: 'a + 'static> Deref for $Type<'a, T> {
+            type Target = T;
 
-    #[inline(always)]
-    fn deref(&self) -> &Self::Target {
-        unsafe { &*(self.0.deref().deref() as *const dyn Any as *const T) }
+            #[inline(always)]
+            fn deref(&self) -> &Self::Target {
+                unsafe { &*(self.0.deref().deref() as *const dyn Any as *const T) }
+            }
+        }
     }
 }
 
-impl<'a, T: 'a + 'static> Deref for AnyHandleWriteGuard<'a, T> {
-    type Target = T;
+impl_deref!(AnyHandleWriteGuard);
+impl_deref!(AnyHandleReadGuard);
 
-    #[inline(always)]
-    fn deref(&self) -> &Self::Target {
-        unsafe { &*(self.0.deref().deref() as *const dyn Any as *const T) }
-    }
-}
-
+/// Deref a handle, mutably.
 impl<'a, T: 'a + 'static> DerefMut for AnyHandleWriteGuard<'a, T> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut T {
