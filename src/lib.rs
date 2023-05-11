@@ -27,8 +27,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 ///     // Now we can put it in some sort of generic container...
 ///
 ///     // ...and when we retrieve it later:
-///     let handle : Option<AnyHandle<SomeStruct>> = handle.into();
-///     let mut handle = handle?;
+///     let mut handle : AnyHandle<SomeStruct> = handle.downcast().ok()?;
 ///     handle.write().do_mut_things_with();
 ///     handle.read().do_things_with();
 ///     Some(())
@@ -42,6 +41,20 @@ impl AnyHandle<dyn Any> {
     /// Initialize an AnyHandle from a [Box]<dyn [Any]>.
     pub fn new(inner: Box<dyn Any>) -> Self {
         Self(Arc::new(RwLock::new(inner)), PhantomData)
+    }
+
+    /// Downcast this handle from `dyn Any` to a specific type.
+    /// If the stored data can be downcast to type Y, succeeds and
+    /// returns Ok(the cast AnyHandle).
+    /// If the data cannot be downcast, errors and returns Error(self).
+    ///
+    /// You may also downcast using `Option<AnyHandle<T>>::from`.
+    pub fn downcast<Y: 'static>(self) -> Result<AnyHandle<Y>, Self> {
+        if self.0.read().unwrap().is::<Y>() {
+            Ok(AnyHandle::<Y>(self.0, PhantomData))
+        } else {
+            Err(self)
+        }
     }
 }
 
@@ -75,11 +88,7 @@ impl<T: ?Sized> AnyHandle<T> {
 impl<T: Sized + 'static> From<AnyHandle<dyn Any>> for Option<AnyHandle<T>> {
     /// Downcast an AnyHandle<dyn [Any]> to an AnyHandle<T>.
     fn from(item: AnyHandle<dyn Any>) -> Option<AnyHandle<T>> {
-        if item.0.read().unwrap().is::<T>() {
-            Some(AnyHandle::<T>(item.0, PhantomData))
-        } else {
-            None
-        }
+        item.downcast().ok()
     }
 }
 

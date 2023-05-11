@@ -14,7 +14,7 @@ thread safety model of `RwLock`.
 use any_handle::{AnyHandle, Any};
 struct SomeStruct (i32);
 
-fn main() {
+fn main() -> Option<()>{
     // Initialize a handle with an unknown type.
     // If you want to pass in a Box<dyn SomeOtherTrait>, instead of a concrete
     // type, you will have to use `#![feature(trait_upcasting)]`, unfortunately.
@@ -22,8 +22,9 @@ fn main() {
     // Now we can put it in some sort of generic container...
     
     // ...and when we retrieve it later:
-    let mut handle: AnyHandle<SomeStruct> = handle.into()?;
+    let mut handle: AnyHandle<SomeStruct> = handle.downcast().ok()?;
     handle.write().do_mut_things_with();
     handle.read().do_things_with();
+    Some(())
 }
 ```
