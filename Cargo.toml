@@ -1,6 +1,6 @@
 [package]
 name = "any_handle"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Ethan McTague"]
 description = "A thread-safe, type-safe smart pointer that can share, store and downcast a `dyn Any`."
