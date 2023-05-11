@@ -1,0 +1,13 @@
+[package]
+name = "any_handle"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ethan McTague"]
+description = "A thread-safe, type-safe smart pointer that can share, store and downcast a `dyn Any`."
+repository = "https://github.com/emctague/any_handle"
+homepage = "https://github.com/emctague/any_handle"
+license = "MIT"
+keywords = ["container", "data-structures"]
+categories = ["data-structures", "memory-management"]
+
+[dependencies]
